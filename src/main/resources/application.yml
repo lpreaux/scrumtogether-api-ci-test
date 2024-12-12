@@ -11,3 +11,11 @@ spring:
     hibernate:
       ddl-auto: update
 
+  logging:
+    level:
+      org.springframework: DEBUG
+
+security:
+  jwt:
+    secret-key: "AwesomeScrumTogetherSecretKey1WhichIsTheMostSECRETEverAwesomeScrumTogetherSecretKey1WhichIsTheMostSECRETEverAwesomeScrumTogetherSecretKey1WhichIsTheMostSECRETEverAwesomeScrumTogetherSecretKey1WhichIsTheMostSECRETEver"
+    expiration-time: 864000

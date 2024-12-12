@@ -10,7 +10,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import scrumtogether.scrumtogetherapi.security.UserDetailServiceImpl;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import scrumtogether.scrumtogetherapi.security.JwtAuthenticationFilter;
+import scrumtogether.scrumtogetherapi.security.STUserDetailService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,11 +21,14 @@ import java.util.Map;
 public class WebSecurityConfig {
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationFilter jwtFilter) throws Exception {
         http
                 .authorizeHttpRequests(
-                        auth -> auth.anyRequest().permitAll()
+                        auth -> auth
+                                .requestMatchers("/api/v1/test-secured").authenticated()
+                                .anyRequest().permitAll()
                 )
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable);
         return http.build();
@@ -31,7 +36,7 @@ public class WebSecurityConfig {
 
 
     @Bean
-    public AuthenticationManager authManager(HttpSecurity http, UserDetailServiceImpl userDetailService) throws Exception {
+    public AuthenticationManager authManager(HttpSecurity http, STUserDetailService userDetailService) throws Exception {
         AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
         authenticationManagerBuilder.userDetailsService(userDetailService);
         return authenticationManagerBuilder.build();
