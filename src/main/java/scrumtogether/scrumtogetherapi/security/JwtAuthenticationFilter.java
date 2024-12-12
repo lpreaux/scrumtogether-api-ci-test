@@ -19,6 +19,20 @@ import scrumtogether.scrumtogetherapi.services.JwtService;
 
 import java.io.IOException;
 
+/**
+ * A custom filter that intercepts incoming HTTP requests to validate JWT-based authentication.
+ * This filter extends {@code OncePerRequestFilter}, ensuring it executes once per request.
+ * <p>
+ * Core responsibilities:
+ * - Extract the JWT token from the Authorization header.
+ * - Validate the token's authenticity and expiration.
+ * - Retrieve user details associated with the token.
+ * - Populate the security context with authenticated user details if the token is valid.
+ * - Delegate the request to the next filter in the filter chain after processing.
+ * <p>
+ * In case of exceptions during the token validation process, the filter uses
+ * {@code HandlerExceptionResolver} to handle the exceptions gracefully.
+ */
 @RequiredArgsConstructor
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -27,6 +41,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
+    /**
+     * Processes the incoming HTTP request to filter and validate JWT-based authentication.
+     * Validates the token, retrieves user details if necessary, and sets the security context
+     * with an authentication token if the JWT token is valid.
+     *
+     * @param request the HTTP request being processed.
+     * @param response the HTTP response being generated.
+     * @param filterChain the chain of filters to which the processing should proceed after execution.
+     * @throws ServletException if an error occurs during request processing.
+     * @throws IOException if an I/O error occurs during request processing.
+     */
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
