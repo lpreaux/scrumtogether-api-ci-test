@@ -9,31 +9,46 @@ import java.io.Serializable;
  * DTO for {@link scrumtogether.scrumtogetherapi.entities.User}
  * <p>
  * Represents the response returned to the client upon successful user sign-in.
- * This class encapsulates the key details of the authentication result, including
- * the issued token and its validity duration.
- * <p>
- * The sign-in response is a critical part of the authentication workflow, providing
- * both the credentials needed for authorized access and metadata about their validity.
- * It supports serialization, enabling its usage in distributed systems or storage.
- * <p>
- * This class is immutable and leverages the builder pattern for safe and convenient construction.
+ * This class encapsulates the authentication token and its expiration details.
+ * The class is immutable and implements {@link Serializable} for distributed system compatibility.
  */
 @Value
-@Builder
 public class SignInResponse implements Serializable {
+
     /**
-     * Represents the authentication token issued upon successful user sign-in.
-     * This field is typically a string that contains encoded information, used to
-     * validate the user's identity and grant access to resources or actions.
-     * It is included in the sign-in response as part of the authentication workflow.
+     * The JWT authentication token issued upon successful sign-in.
+     * Used for subsequent request authentication.
+     * <p>
+     * Format: Bearer token that should be included in the Authorization header
+     * of subsequent HTTP requests.
      */
     String token;
 
     /**
-     * Represents the duration (in seconds) for which the authentication token remains valid.
-     * This field indicates the expiration time of the token issued during the sign-in process.
-     * It is typically used to determine when the token will no longer be accepted for authentication
-     * and a new token will need to be generated or obtained.
+     * The token's validity duration in seconds from the time of issuance.
+     * Indicates when a new token should be obtained through re-authentication.
+     * <p>
+     * Note: This value should be used by clients to schedule token refresh
+     * before the current token expires.
      */
     Long expiresIn;
+
+    /**
+     * Creates a new SignInResponse with the provided token and expiration time.
+     *
+     * @param token     the JWT authentication token
+     * @param expiresIn the token validity duration in seconds
+     * @throws IllegalArgumentException if token is null or expiresIn is negative
+     */
+    @Builder
+    public SignInResponse(String token, Long expiresIn) {
+        if (token == null) {
+            throw new IllegalArgumentException("Token cannot be null");
+        }
+        if (expiresIn != null && expiresIn < 0) {
+            throw new IllegalArgumentException("ExpiresIn cannot be negative");
+        }
+        this.token = token;
+        this.expiresIn = expiresIn;
+    }
 }

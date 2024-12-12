@@ -2,6 +2,7 @@ package scrumtogether.scrumtogetherapi.services;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import scrumtogether.scrumtogetherapi.services.mappers.UserMapper;
  * Validation is enforced via annotations on method parameters to ensure data integrity.
  */
 @RequiredArgsConstructor
+@Slf4j
 @Service
 public class AuthenticationService {
     private final UserRepository userRepository;
@@ -29,17 +31,41 @@ public class AuthenticationService {
     private final AuthenticationManager authManager;
 
     /**
-     * Registers a new user in the system by converting the provided registration details
-     * to a user entity and saving it to the repository.
+     * Registers a new user in the system with validation checks.
      *
-     * @param registrationDto the details required to register a new user.
-     *                        It includes the user's first name, last name, email, username,
-     *                        password, and confirmation password. The parameter must be
-     *                        valid and not null.
+     * @param registrationDto the registration details
+     * @throws AuthenticationException if registration fails due to duplicate username or email
      */
+    @Transactional
     public void register(@Valid RegistrationDto registrationDto) {
-        User user = userMapper.toEntity(registrationDto);
-        userRepository.save(user);
+        log.debug("Processing registration request for user: {}", registrationDto.getUsername());
+
+        // Check for existing username
+        if (userRepository.existsByUsernameIgnoreCase(registrationDto.getUsername().trim().toLowerCase())) {
+            log.warn("Registration failed - Username already exists: {}", registrationDto.getUsername());
+            throw new AuthenticationException("Username already exists");
+        }
+
+        // Check for existing email
+        if (userRepository.existsByEmailIgnoreCase(registrationDto.getEmail().trim().toLowerCase())) {
+            log.warn("Registration failed - Email already exists: {}", registrationDto.getEmail());
+            throw new AuthenticationException("Email already exists");
+        }
+
+        try {
+            User user = userMapper.toEntity(registrationDto);
+            userRepository.save(user);
+            log.info("User successfully registered: {}", user.getUsername());
+
+            // Here you could also:
+            // - Send verification email
+            // - Create initial user settings
+            // - Send welcome notification
+
+        } catch (Exception e) {
+            log.error("Unexpected error during registration for user: {}", registrationDto.getUsername(), e);
+            throw new AuthenticationException("Registration failed");
+        }
     }
 
     /**
@@ -51,30 +77,34 @@ public class AuthenticationService {
      */
     @Transactional(readOnly = true)
     public User authenticate(@Valid SignInRequest signInRequest) {
+        log.debug("Authentication attempt for user: {}", signInRequest.getUsername());
+
         try {
-            Authentication authentication = authManager.authenticate(
+            Authentication authenticate = authManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             signInRequest.getUsername(),
                             signInRequest.getPassword()
                     )
             );
+            log.info("User successfully authenticated: {}", signInRequest.getUsername());
 
-            // Cast the principal to your UserDetails implementation
-            if (authentication.getPrincipal() instanceof User user) {
-                return user;
-            }
-
-            // Fallback to database query if needed
-            return userRepository.findByUsername(authentication.getName())
-                    .orElseThrow(() -> new AuthenticationException("Authentication failed"));
+            return userRepository.findByUsername(authenticate.getName())
+                    .orElseThrow(() -> {
+                        log.error("User not found after successful authentication: {}", signInRequest.getUsername());
+                        return new AuthenticationException("Cannot find user with username " + signInRequest.getUsername());
+                    });
 
         } catch (BadCredentialsException e) {
+            log.warn("Failed authentication attempt for user: {} - Invalid credentials", signInRequest.getUsername());
             throw new AuthenticationException("Invalid credentials");
         } catch (DisabledException e) {
+            log.warn("Failed authentication attempt for user: {} - Account is disabled", signInRequest.getUsername());
             throw new AuthenticationException("Account is disabled");
         } catch (LockedException e) {
+            log.warn("Failed authentication attempt for user: {} - Account is locked", signInRequest.getUsername());
             throw new AuthenticationException("Account is locked");
         } catch (Exception e) {
+            log.error("Unexpected error during authentication for user: {}", signInRequest.getUsername(), e);
             throw new AuthenticationException("Authentication failed");
         }
     }
