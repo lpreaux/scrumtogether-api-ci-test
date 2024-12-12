@@ -14,9 +14,9 @@ COPY .mvn/ .mvn/
 
 FROM base AS test
 WORKDIR /build
+COPY pom.xml .
 COPY ./src src/
-RUN --mount=type=bind,source=pom.xml,target=pom.xml \
-    --mount=type=cache,target=/root/.m2 \
+RUN --mount=type=cache,target=/root/.m2 \
     ./mvnw test
 
 ################################################################################
@@ -24,11 +24,11 @@ RUN --mount=type=bind,source=pom.xml,target=pom.xml \
 # Create a stage for resolving and downloading dependencies.
 FROM base AS deps
 WORKDIR /build
+COPY pom.xml .
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.m2 so that subsequent builds don't have to
 # re-download packages.
-RUN --mount=type=bind,source=pom.xml,target=pom.xml \
-    --mount=type=cache,target=/root/.m2 \
+RUN  --mount=type=cache,target=/root/.m2 \
     ./mvnw dependency:go-offline -DskipTests
 
 ################################################################################
@@ -64,14 +64,14 @@ RUN java -Djarmode=layertools -jar target/app.jar extract --destination target/e
 
 
 
-FROM extract AS development
+FROM deps AS development
 WORKDIR /build
-RUN cp -r /build/target/extracted/dependencies/. ./
-RUN cp -r /build/target/extracted/spring-boot-loader/. ./
-RUN cp -r /build/target/extracted/snapshot-dependencies/. ./
-RUN cp -r /build/target/extracted/application/. ./
-ENV JAVA_TOOL_OPTIONS -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000
-CMD [ "java", "org.springframework.boot.loader.launch.JarLauncher" ]
+COPY ./src src/
+ENV SPRING_DEVTOOLS_REMOTE_SECRET=mysecret
+#ENV JAVA_TOOL_OPTIONS -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000
+CMD ["./mvnw", "spring-boot:run", \
+     "-Dspring-boot.run.jvmArguments='-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000'", \
+     "-Dspring-boot.run.profiles=dev"]
 
 ################################################################################
 

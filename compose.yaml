@@ -15,20 +15,34 @@ services:
     build:
       context: .
       target: development
+    volumes:
+      - maven-cache:/root/.m2  # Persist Maven cache
+      - ./target:/build/target
     environment:
+      SPRING_DEVTOOLS_RESTART_ENABLED: "true"
+      SPRING_DEVTOOLS_LIVERELOAD_ENABLED: "true"
       SCRUMTOGETHER_DATABASE_URL: 'jdbc:mariadb://db:3306/scrumtogether'
       SCRUMTOGETHER_DATABASE_USERNAME: 'root'
       SCRUMTOGETHER_DATABASE_PASSWORD: 'verysecret'
     ports:
       - 8080:8080
       - 8000:8000
+      - 35729:35729
     depends_on:
       db:
         condition: service_healthy
     develop:
       watch:
+        - action: sync
+          path: ./src
+          target: /build/src
+          ignore:
+            - ./src/test
+        - action: sync
+          path: ./pom.xml
+          target: /build/pom.xml
         - action: rebuild
-          path: .
+          path: pom.xml
 
 
   db:
@@ -50,4 +64,5 @@ services:
       retries: 3
 
 volumes:
+  maven-cache:
   datas:

@@ -11,9 +11,19 @@ spring:
     hibernate:
       ddl-auto: update
 
-  logging:
-    level:
-      org.springframework: DEBUG
+  devtools:
+    restart:
+      enabled: true
+      additional-paths: src/main/java
+      poll-interval: 1s
+      quiet-period: 400ms
+      additional-exclude: static/**,public/**
+    livereload:
+      enabled: true
+
+logging:
+  level:
+    org.springframework: DEBUG
 
 security:
   jwt:
