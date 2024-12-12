@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: scrum-together-api
+
+  datasource:
+    url: ${SCRUMTOGETHER_DATABASE_URL}
+    username: ${SCRUMTOGETHER_DATABASE_USERNAME}
+    password: ${SCRUMTOGETHER_DATABASE_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+

@@ -1,10 +1,53 @@
+#services:
+
+
+# Comments are provided throughout this file to help you get started.
+# If you need more help, visit the Docker Compose reference guide at
+# https://docs.docker.com/go/compose-spec-reference/
+
+# Here the instructions define your application as a service called "server".
+# This service is built from the Dockerfile in the current directory.
+# You can add other services your application may depend on here, such as a
+# database or a cache. For examples, see the Awesome Compose repository:
+# https://github.com/docker/awesome-compose
 services:
-  mariadb:
-    image: 'mariadb:latest'
+  server:
+    build:
+      context: .
+      target: development
     environment:
-      - 'MARIADB_DATABASE=mydatabase'
+      SCRUMTOGETHER_DATABASE_URL: 'jdbc:mariadb://db:3306/scrumtogether'
+      SCRUMTOGETHER_DATABASE_USERNAME: 'root'
+      SCRUMTOGETHER_DATABASE_PASSWORD: 'verysecret'
+    ports:
+      - 8080:8080
+      - 8000:8000
+    depends_on:
+      db:
+        condition: service_healthy
+    develop:
+      watch:
+        - action: rebuild
+          path: .
+
+
+  db:
+    image: 'mariadb:latest'
+    volumes:
+      - datas:/var/lib/mysql:Z
+    environment:
+      - 'MARIADB_DATABASE=scrumtogether'
       - 'MARIADB_PASSWORD=secret'
       - 'MARIADB_ROOT_PASSWORD=verysecret'
       - 'MARIADB_USER=myuser'
     ports:
-      - '3306'
+      - '3306:3306'
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  datas:
