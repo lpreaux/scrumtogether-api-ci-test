@@ -8,7 +8,7 @@
         <version>3.4.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>scrumtogether</groupId>
+    <groupId>fr.scrumtogether</groupId>
     <artifactId>scrum-together-api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>scrum-together-api</name>
@@ -139,7 +139,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>scrumtogether.scrumtogetherapi.ScrumTogetherApiApplication</mainClass>
+                    <mainClass>fr.scrumtogether.scrumtogetherapi.ScrumTogetherApiApplication</mainClass>
                     <excludeDevtools>false</excludeDevtools>
                     <excludes>
                         <exclude>
