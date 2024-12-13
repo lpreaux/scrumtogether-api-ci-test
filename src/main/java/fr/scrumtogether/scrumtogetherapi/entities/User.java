@@ -132,6 +132,9 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user")
     private Set<TeamUser> teamUsers = new LinkedHashSet<>();
 
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    private Set<ProjectUser> projectUsers = new LinkedHashSet<>();
+
     /**
      * Returns the authorities granted to the user.
      * Converts the user's role to a Spring Security GrantedAuthority.

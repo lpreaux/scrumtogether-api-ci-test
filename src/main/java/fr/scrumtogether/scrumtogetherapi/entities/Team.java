@@ -34,4 +34,7 @@ public class Team {
     @OneToMany(mappedBy = "team")
     private Set<TeamUser> teamUsers = new LinkedHashSet<>();
 
+    @OneToMany(mappedBy = "team")
+    private Set<Project> projects = new LinkedHashSet<>();
+
 }

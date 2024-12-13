@@ -19,17 +19,15 @@ public class TeamUser {
   @EmbeddedId
   private TeamUserId id;
 
-  @ManyToOne
+  @ManyToOne(optional = false)
   @MapsId("userId")
-  @JoinColumn(name = "user_id")
   private User user;
 
-  @ManyToOne
+  @ManyToOne(optional = false)
   @MapsId("teamId")
-  @JoinColumn(name = "team_id")
   private Team team;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "team_role")
-  private TeamRole teamRole;
+  private TeamRole teamRole = TeamRole.MEMBER;
 }
