@@ -1,5 +1,11 @@
 package fr.scrumtogether.scrumtogetherapi.services;
 
+import fr.scrumtogether.scrumtogetherapi.dtos.RegistrationDto;
+import fr.scrumtogether.scrumtogetherapi.dtos.SignInRequest;
+import fr.scrumtogether.scrumtogetherapi.entities.User;
+import fr.scrumtogether.scrumtogetherapi.exceptions.AuthenticationException;
+import fr.scrumtogether.scrumtogetherapi.repositories.UserRepository;
+import fr.scrumtogether.scrumtogetherapi.services.mappers.UserMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,12 +13,6 @@ import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import fr.scrumtogether.scrumtogetherapi.dtos.RegistrationDto;
-import fr.scrumtogether.scrumtogetherapi.dtos.SignInRequest;
-import fr.scrumtogether.scrumtogetherapi.entities.User;
-import fr.scrumtogether.scrumtogetherapi.exceptions.AuthenticationException;
-import fr.scrumtogether.scrumtogetherapi.repositories.UserRepository;
-import fr.scrumtogether.scrumtogetherapi.services.mappers.UserMapper;
 
 /**
  * Service responsible for user authentication and registration operations.
@@ -88,6 +88,8 @@ public class AuthenticationService {
             );
             log.info("User successfully authenticated: {}", signInRequest.getUsername());
 
+            // TODO  PAs de double appel base
+
             return userRepository.findByUsername(authenticate.getName())
                     .orElseThrow(() -> {
                         log.error("User not found after successful authentication: {}", signInRequest.getUsername());
@@ -96,16 +98,16 @@ public class AuthenticationService {
 
         } catch (BadCredentialsException e) {
             log.warn("Failed authentication attempt for user: {} - Invalid credentials", signInRequest.getUsername());
-            throw new AuthenticationException("Invalid credentials");
+            throw new AuthenticationException("Invalid credentials", e);
         } catch (DisabledException e) {
             log.warn("Failed authentication attempt for user: {} - Account is disabled", signInRequest.getUsername());
-            throw new AuthenticationException("Account is disabled");
+            throw new AuthenticationException("Account is disabled", e);
         } catch (LockedException e) {
             log.warn("Failed authentication attempt for user: {} - Account is locked", signInRequest.getUsername());
-            throw new AuthenticationException("Account is locked");
+            throw new AuthenticationException("Account is locked", e);
         } catch (Exception e) {
             log.error("Unexpected error during authentication for user: {}", signInRequest.getUsername(), e);
-            throw new AuthenticationException("Authentication failed");
+            throw new AuthenticationException("Authentication failed", e);
         }
     }
 }

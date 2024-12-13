@@ -1,16 +1,19 @@
 package fr.scrumtogether.scrumtogetherapi.controllers;
 
-import jakarta.validation.Valid;
+import fr.scrumtogether.scrumtogetherapi.dtos.RegistrationDto;
+import fr.scrumtogether.scrumtogetherapi.dtos.SignInRequest;
 import fr.scrumtogether.scrumtogetherapi.dtos.SignInResponse;
+import fr.scrumtogether.scrumtogetherapi.entities.User;
+import fr.scrumtogether.scrumtogetherapi.services.AuthenticationService;
 import fr.scrumtogether.scrumtogetherapi.services.JwtService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import fr.scrumtogether.scrumtogetherapi.dtos.RegistrationDto;
-import fr.scrumtogether.scrumtogetherapi.dtos.SignInRequest;
-import fr.scrumtogether.scrumtogetherapi.entities.User;
-import fr.scrumtogether.scrumtogetherapi.services.AuthenticationService;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController
@@ -36,10 +39,5 @@ public class AuthenticationController {
                 .build();
 
         return new ResponseEntity<>(response, null, HttpStatus.OK);
-    }
-
-    @GetMapping("test-secured")
-    public ResponseEntity<String> testSecured() {
-        return new ResponseEntity<>("Secured endpoint", null, HttpStatus.OK);
     }
 }
