@@ -1,7 +1,11 @@
 package fr.scrumtogether.scrumtogetherapi.controllers;
 
 import fr.scrumtogether.scrumtogetherapi.dtos.ErrorResponse;
+import fr.scrumtogether.scrumtogetherapi.exceptions.AccessDeniedException;
 import fr.scrumtogether.scrumtogetherapi.exceptions.AuthenticationException;
+import fr.scrumtogether.scrumtogetherapi.exceptions.RateLimitExceededException;
+import fr.scrumtogether.scrumtogetherapi.exceptions.ValidationException;
+import jakarta.persistence.OptimisticLockException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,6 +53,38 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .badRequest()
                 .body(new ErrorResponse(VALIDATION_ERROR_MESSAGE, errors));
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ErrorResponse> handleValidationException(ValidationException ex) {
+        log.warn("Validation error: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse("Validation failed", ex.getMessage()));
+    }
+
+    @ExceptionHandler(OptimisticLockException.class)
+    public ResponseEntity<ErrorResponse> handleOptimisticLockException(OptimisticLockException ex) {
+        log.warn("Optimistic lock error: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse("Update conflict", ex.getMessage()));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
+        log.warn("Access denied: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponse("Access denied", ex.getMessage()));
+    }
+
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<ErrorResponse> handleRateLimitException(RateLimitExceededException ex) {
+        log.warn("Rate limit exceeded: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(new ErrorResponse("Too many requests", ex.getMessage()));
     }
 
     /**

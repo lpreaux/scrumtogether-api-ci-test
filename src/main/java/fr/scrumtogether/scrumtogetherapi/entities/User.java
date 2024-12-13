@@ -135,6 +135,12 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     private Set<ProjectUser> projectUsers = new LinkedHashSet<>();
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    @Column(name = "deleted_by")
+    private String deletedBy;
+
     /**
      * Returns the authorities granted to the user.
      * Converts the user's role to a Spring Security GrantedAuthority.
@@ -184,7 +190,7 @@ public class User implements UserDetails {
      */
     @Override
     public boolean isEnabled() {
-        return true;
+        return !isDeleted();
         // return verifiedEmail;
     }
 
@@ -204,6 +210,10 @@ public class User implements UserDetails {
      */
     public String getFullName() {
         return firstName + " " + lastName;
+    }
+
+    public boolean isDeleted() {
+        return deletedAt != null;
     }
 
     /**
