@@ -1,5 +1,6 @@
 package fr.scrumtogether.scrumtogetherapi.entities;
 
+import fr.scrumtogether.scrumtogetherapi.entities.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -8,11 +9,12 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import fr.scrumtogether.scrumtogetherapi.entities.enums.Role;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Represents a user entity in the system, integrating with Spring Security through UserDetails interface.
@@ -126,6 +128,9 @@ public class User implements UserDetails {
     @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "user")
+    private Set<TeamUser> teamUsers = new LinkedHashSet<>();
 
     /**
      * Returns the authorities granted to the user.
