@@ -22,6 +22,7 @@ import fr.scrumtogether.scrumtogetherapi.mappers.TeamMapper;
 import fr.scrumtogether.scrumtogetherapi.services.TeamService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.PostMapping;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -33,7 +34,8 @@ public class TeamController {
     private final TeamMapper teamMapper;
 
     @GetMapping
-    public ResponseEntity<PagedModel<TeamDto>> getAll(@RequestParam @Nullable Integer page, @RequestParam @Nullable Integer size) {
+    public ResponseEntity<PagedModel<TeamDto>> getAll(@RequestParam @Nullable Integer page,
+            @RequestParam @Nullable Integer size) {
         Page<Team> paginated = teamService.getAll(page, size);
         PagedModel<TeamDto> paginatedDto = pagedResourcesAssembler.toModel(paginated, teamMapper);
         return new ResponseEntity<>(paginatedDto, HttpStatus.OK);
@@ -58,5 +60,12 @@ public class TeamController {
         teamService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-    
+
+    @PostMapping("/create")
+    public ResponseEntity<TeamDto> create(@RequestBody TeamDto teamDto) {
+        Team team = teamService.create(teamDto);
+        TeamDto dto = teamMapper.toModel(team);
+        return new ResponseEntity<>(dto, HttpStatus.OK);
+    }
+
 }

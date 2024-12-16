@@ -1,8 +1,10 @@
 package fr.scrumtogether.scrumtogetherapi.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -10,6 +12,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @ToString(onlyExplicitlyIncluded = true)

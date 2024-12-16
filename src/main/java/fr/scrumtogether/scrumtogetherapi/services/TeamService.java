@@ -6,12 +6,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import fr.scrumtogether.scrumtogetherapi.dtos.TeamDto;
-import fr.scrumtogether.scrumtogetherapi.dtos.UserDto;
 import fr.scrumtogether.scrumtogetherapi.entities.Team;
-import fr.scrumtogether.scrumtogetherapi.entities.User;
 import fr.scrumtogether.scrumtogetherapi.exceptions.EntityNotFoundException;
+import fr.scrumtogether.scrumtogetherapi.exceptions.TeamException;
 import fr.scrumtogether.scrumtogetherapi.mappers.TeamMapper;
 import fr.scrumtogether.scrumtogetherapi.repositories.TeamRepository;
 import lombok.RequiredArgsConstructor;
@@ -58,7 +58,7 @@ public class TeamService {
         return team;
     }
 
-        @Transactional
+    @Transactional
     public Team update(Long teamId, TeamDto teamDto) {
         if (!teamId.equals(teamDto.getId())) {
             throw new IllegalArgumentException("User id in path and body must be the same");
@@ -74,6 +74,20 @@ public class TeamService {
             teamRepository.delete(team.get());
         } else {
             throw new EntityNotFoundException("Team not found");
+        }
+    }
+
+    @Transactional
+    public Team create(@RequestBody TeamDto teamDto) {
+        log.debug("Processing team creation: {}", teamDto.getName());
+        try {
+            Team team = teamMapper.toEntity(teamDto);
+            teamRepository.save(team);
+            return team;
+
+        } catch (Exception e) {
+            log.error("Unexpected error during creation for team: {}", teamDto.getName(), e);
+            throw new TeamException("Failled to create the team", e);
         }
     }
 }

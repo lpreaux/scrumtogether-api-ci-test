@@ -8,11 +8,8 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import fr.scrumtogether.scrumtogetherapi.controllers.TeamController;
-import fr.scrumtogether.scrumtogetherapi.dtos.RegistrationDto;
 import fr.scrumtogether.scrumtogetherapi.dtos.TeamDto;
 import fr.scrumtogether.scrumtogetherapi.entities.Team;
-import fr.scrumtogether.scrumtogetherapi.entities.User;
-import fr.scrumtogether.scrumtogetherapi.entities.enums.Role;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -49,6 +46,7 @@ public class TeamMapper extends RepresentationModelAssemblerSupport<Team, TeamDt
         log.debug("Mapping team to team DTO: {}", entity.getName());
 
         TeamDto teamDto = instantiateModel(entity);
+        teamDto.setId(entity.getId());
         teamDto.setName(entity.getName());
         teamDto.setDescription(entity.getDescription());
         teamDto.setEmail(entity.getEmail());
