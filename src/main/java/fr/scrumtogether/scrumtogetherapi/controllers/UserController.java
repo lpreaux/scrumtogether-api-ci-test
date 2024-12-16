@@ -11,6 +11,7 @@ import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Nullable;
@@ -49,5 +50,17 @@ public class UserController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         userService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PostMapping("/{id}/restore")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDto> restore(@PathVariable Long id) {
+        log.info("Received request to restore user with ID: {}", id);
+
+        User restoredUser = userService.restore(id);
+        UserDto dto = userMapper.toModel(restoredUser);
+
+        log.info("Successfully restored user with ID: {}", id);
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 }

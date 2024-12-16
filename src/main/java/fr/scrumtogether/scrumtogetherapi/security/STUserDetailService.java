@@ -1,11 +1,11 @@
 package fr.scrumtogether.scrumtogetherapi.security;
 
+import fr.scrumtogether.scrumtogetherapi.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import fr.scrumtogether.scrumtogetherapi.repositories.UserRepository;
 
 /**
  * Service implementation for managing user details used in Spring Security.
@@ -30,7 +30,7 @@ public class STUserDetailService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username)
+        return userRepository.findByUsernameAndDeletedAtIsNull(username)
                 .orElseThrow(() -> new UsernameNotFoundException(username));
     }
 }

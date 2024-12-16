@@ -29,3 +29,8 @@ security:
   jwt:
     secret-key: "AwesomeScrumTogetherSecretKey1WhichIsTheMostSECRETEverAwesomeScrumTogetherSecretKey1WhichIsTheMostSECRETEverAwesomeScrumTogetherSecretKey1WhichIsTheMostSECRETEverAwesomeScrumTogetherSecretKey1WhichIsTheMostSECRETEver"
     expiration-time: 864000
+
+
+rate-limit:
+  requests-per-minute: 2
+  expiration-minutes: 15

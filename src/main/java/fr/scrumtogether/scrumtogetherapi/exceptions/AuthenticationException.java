@@ -7,10 +7,9 @@ package fr.scrumtogether.scrumtogetherapi.exceptions;
  * during user authentication, such as invalid credentials or
  * when a user cannot be found in the system.
  * <p>
- * Extends {@link RuntimeException} to allow unchecked exceptions
- * for flexibility in handling authentication errors.
+ * Extends {@link ApplicationException}
  */
-public class AuthenticationException extends RuntimeException {
+public class AuthenticationException extends ApplicationException {
     public AuthenticationException(String message) {
         super(message);
     }
