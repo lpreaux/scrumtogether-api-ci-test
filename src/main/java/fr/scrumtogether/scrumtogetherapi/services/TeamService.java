@@ -1,13 +1,5 @@
 package fr.scrumtogether.scrumtogetherapi.services;
 
-import java.util.Optional;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
-
 import fr.scrumtogether.scrumtogetherapi.dtos.TeamDto;
 import fr.scrumtogether.scrumtogetherapi.entities.Team;
 import fr.scrumtogether.scrumtogetherapi.exceptions.EntityNotFoundException;
@@ -16,6 +8,13 @@ import fr.scrumtogether.scrumtogetherapi.mappers.TeamMapper;
 import fr.scrumtogether.scrumtogetherapi.repositories.TeamRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -55,6 +54,16 @@ public class TeamService {
         Team team = teamRepository.findById(teamDto.getId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         teamMapper.updateEntity(team, teamDto);
+        teamDto.getTeamUsers().forEach(teamUserDto -> {
+            team.getTeamUsers().stream()
+                    .filter(teamUser -> teamUser.getId().equals(teamUserDto.getId()))
+                    .findFirst()
+                    .ifPresent(teamUser -> {
+                        userTeamMapper.updateEntity(teamUser, teamUserDto);
+                    });
+        });
+
+        //TODO gérer les projects
         return team;
     }
 
