@@ -3,7 +3,7 @@ package fr.scrumtogether.scrumtogetherapi.services;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.scrumtogether.scrumtogetherapi.entities.AuditLog;
 import fr.scrumtogether.scrumtogetherapi.repositories.AuditRepository;
-import fr.scrumtogether.scrumtogetherapi.utils.jpa.SecurityUtils;
+import fr.scrumtogether.scrumtogetherapi.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

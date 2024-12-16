@@ -1,4 +1,4 @@
-package fr.scrumtogether.scrumtogetherapi.utils.jpa;
+package fr.scrumtogether.scrumtogetherapi.utils;
 
 import fr.scrumtogether.scrumtogetherapi.entities.User;
 import org.springframework.security.core.Authentication;
