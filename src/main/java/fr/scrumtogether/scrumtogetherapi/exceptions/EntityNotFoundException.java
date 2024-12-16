@@ -1,6 +1,6 @@
 package fr.scrumtogether.scrumtogetherapi.exceptions;
 
-public class EntityNotFoundException extends RuntimeException {
+public class EntityNotFoundException extends ApplicationException {
   public EntityNotFoundException(String message) {
     super(message);
   }

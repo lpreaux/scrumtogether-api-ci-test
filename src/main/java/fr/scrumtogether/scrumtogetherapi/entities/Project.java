@@ -31,7 +31,7 @@ public class Project {
     private LocalDate startDate;
 
     @Column(name = "end_date", nullable = false)
-    private LocalDate end_date;
+    private LocalDate endDate;
 
     @Convert(converter = JsonListConverter.class)
     @Column(name = "git_repositories", columnDefinition = "JSON NOT NULL")
@@ -43,5 +43,11 @@ public class Project {
 
     @OneToMany(mappedBy = "project", orphanRemoval = true)
     private Set<ProjectUser> projectUsers = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "project", orphanRemoval = true)
+    private Set<Item> items = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "project", orphanRemoval = true)
+    private Set<Sprint> sprints = new LinkedHashSet<>();
 
 }

@@ -41,13 +41,13 @@ public class AuthenticationService {
         log.debug("Processing registration request for user: {}", registrationDto.getUsername());
 
         // Check for existing username
-        if (userRepository.existsByUsernameIgnoreCase(registrationDto.getUsername().trim().toLowerCase())) {
+        if (userRepository.existsByEmailIgnoreCaseAndDeletedAtIsNull(registrationDto.getUsername().trim().toLowerCase())) {
             log.warn("Registration failed - Username already exists: {}", registrationDto.getUsername());
             throw new AuthenticationException("Username already exists");
         }
 
         // Check for existing email
-        if (userRepository.existsByEmailIgnoreCase(registrationDto.getEmail().trim().toLowerCase())) {
+        if (userRepository.existsByUsernameIgnoreCaseAndDeletedAtIsNull(registrationDto.getEmail().trim().toLowerCase())) {
             log.warn("Registration failed - Email already exists: {}", registrationDto.getEmail());
             throw new AuthenticationException("Email already exists");
         }
@@ -90,7 +90,7 @@ public class AuthenticationService {
 
             // TODO  PAs de double appel base
 
-            return userRepository.findByUsername(authenticate.getName())
+            return userRepository.findByUsernameAndDeletedAtIsNull(authenticate.getName())
                     .orElseThrow(() -> {
                         log.error("User not found after successful authentication: {}", signInRequest.getUsername());
                         return new AuthenticationException("Cannot find user with username " + signInRequest.getUsername());
