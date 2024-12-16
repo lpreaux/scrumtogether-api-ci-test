@@ -141,6 +141,12 @@ public class User implements UserDetails {
     @Column(name = "deleted_by")
     private String deletedBy;
 
+    @OneToMany(mappedBy = "reporter")
+    private Set<BugReport> reportedBugReports = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "reporter")
+    private Set<BugReport> fixedBugReports = new LinkedHashSet<>();
+
     /**
      * Returns the authorities granted to the user.
      * Converts the user's role to a Spring Security GrantedAuthority.
