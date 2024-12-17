@@ -64,7 +64,7 @@ public class AuthenticationService {
 
         } catch (Exception e) {
             log.error("Unexpected error during registration for user: {}", registrationDto.getUsername(), e);
-            throw new AuthenticationException("Registration failed");
+            throw new AuthenticationException("Registration failed", e);
         }
     }
 

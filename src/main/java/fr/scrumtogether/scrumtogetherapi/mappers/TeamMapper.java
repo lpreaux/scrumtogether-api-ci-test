@@ -1,19 +1,18 @@
 package fr.scrumtogether.scrumtogetherapi.mappers;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
+import fr.scrumtogether.scrumtogetherapi.controllers.TeamController;
+import fr.scrumtogether.scrumtogetherapi.dtos.TeamDto;
+import fr.scrumtogether.scrumtogetherapi.dtos.TeamUserDto;
+import fr.scrumtogether.scrumtogetherapi.entities.Team;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
-import fr.scrumtogether.scrumtogetherapi.controllers.TeamController;
-import fr.scrumtogether.scrumtogetherapi.dtos.RegistrationDto;
-import fr.scrumtogether.scrumtogetherapi.dtos.TeamDto;
-import fr.scrumtogether.scrumtogetherapi.entities.Team;
-import fr.scrumtogether.scrumtogetherapi.entities.User;
-import fr.scrumtogether.scrumtogetherapi.entities.enums.Role;
-import lombok.extern.slf4j.Slf4j;
+import java.util.stream.Collectors;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Slf4j
 @Component
@@ -30,7 +29,6 @@ public class TeamMapper extends RepresentationModelAssemblerSupport<Team, TeamDt
                 .name(teamDto.getName().trim())
                 .email(teamDto.getEmail().trim().toLowerCase())
                 .description(teamDto.getDescription().trim())
-                .teamUsers(teamDto.getTeamUsers())
                 .build();
     }
 
@@ -40,7 +38,6 @@ public class TeamMapper extends RepresentationModelAssemblerSupport<Team, TeamDt
         team.setName(teamDto.getName());
         team.setDescription(teamDto.getDescription());
         team.setEmail(teamDto.getEmail());
-        team.setTeamUsers(teamDto.getTeamUsers());
     }
 
     @Override
@@ -49,10 +46,20 @@ public class TeamMapper extends RepresentationModelAssemblerSupport<Team, TeamDt
         log.debug("Mapping team to team DTO: {}", entity.getName());
 
         TeamDto teamDto = instantiateModel(entity);
+        teamDto.setId(entity.getId());
         teamDto.setName(entity.getName());
         teamDto.setDescription(entity.getDescription());
         teamDto.setEmail(entity.getEmail());
-        teamDto.setTeamUsers(entity.getTeamUsers());
+        teamDto.setTeamUsers(entity.getTeamUsers().stream()
+                .map(teamUser -> TeamUserDto.builder()
+                        .id(teamUser.getId())
+                        .userUsername(teamUser.getUser().getUsername())
+                        .teamRole(teamUser.getTeamRole())
+                        .build())
+                .collect(Collectors.toSet()));
+        teamDto.setProjects(entity.getProjects().stream()
+                .map(project -> new TeamDto.ProjectDto(entity.getId(), entity.getName()))
+                .collect(Collectors.toSet()));
 
         teamDto.add(linkTo(methodOn(TeamController.class).getById(entity.getId())).withSelfRel());
 
