@@ -1,11 +1,15 @@
 package fr.scrumtogether.scrumtogetherapi.services;
 
 import fr.scrumtogether.scrumtogetherapi.dtos.TeamDto;
+import fr.scrumtogether.scrumtogetherapi.dtos.TeamUserDto;
 import fr.scrumtogether.scrumtogetherapi.entities.Team;
+import fr.scrumtogether.scrumtogetherapi.entities.TeamUser;
+import fr.scrumtogether.scrumtogetherapi.entities.User;
 import fr.scrumtogether.scrumtogetherapi.exceptions.EntityNotFoundException;
 import fr.scrumtogether.scrumtogetherapi.exceptions.TeamException;
 import fr.scrumtogether.scrumtogetherapi.mappers.TeamMapper;
 import fr.scrumtogether.scrumtogetherapi.repositories.TeamRepository;
+import fr.scrumtogether.scrumtogetherapi.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -22,6 +26,7 @@ import java.util.Optional;
 public class TeamService {
     private final TeamRepository teamRepository;
     private final TeamMapper teamMapper;
+    private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
     public Page<Team> getAll(Integer pageNumber, Integer pageSize) {
@@ -59,7 +64,7 @@ public class TeamService {
                     .filter(teamUser -> teamUser.getId().equals(teamUserDto.getId()))
                     .findFirst()
                     .ifPresent(teamUser -> {
-                        userTeamMapper.updateEntity(teamUser, teamUserDto);
+                        teamUserUpdate(teamUser, teamUserDto, team);
                     });
         });
 
@@ -98,5 +103,33 @@ public class TeamService {
             log.error("Unexpected error during creation for team: {}", teamDto.getName(), e);
             throw new TeamException("Failled to create the team", e);
         }
+    }
+
+    private TeamUser teamUserFromDto(TeamUserDto teamUserDto, Team team) {
+        log.debug("association d'un utilisateur et d'une team, for user: {} ; and for team: {}", teamUserDto.getUserUsername(), team.getName());
+        User user = userRepository.findByUsernameAndDeletedAtIsNull(teamUserDto.getUserUsername()).orElseThrow(() -> new EntityNotFoundException("User " + teamUserDto.getUserUsername() + " not find"));
+        return TeamUser.builder()
+                .team(team)
+                .user(user)
+                .teamRole(teamUserDto.getTeamRole())
+                .build();
+    }
+
+    private void teamUserUpdate(TeamUser teamUser, TeamUserDto teamUserDto, Team team) {
+        log.debug("association d'un utilisateur et d'une team, for user: {} ; and for team: {}", teamUserDto.getUserUsername(), team.getName());
+        if (!team.getId().equals(teamUser.getTeam().getId())) {
+            throw new TeamException("failed to modify the user role in the team, the team is different");
+        }
+        if (!teamUserDto.getUserUsername().equals(teamUser.getUser().getUsername())) {
+            throw new TeamException("failed to modify the user role in the team, the name is different");
+        }
+
+        teamUser.setTeamRole(teamUserDto.getTeamRole());
+
+
+        /*  todo avec modification du teamuser avec des ancienne valeur mettre les nouvelles valeur de teamuserdto 
+         juste update le role verif entre teamuserdto et team
+         verif si user et le meme entre teamUserDto et teamUser
+         si le cas j'update */
     }
 }
