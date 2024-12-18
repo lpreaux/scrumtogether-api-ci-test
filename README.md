@@ -3,7 +3,7 @@
 Contient le code source de l'API REST, développée en Java 17 avec Spring Boot.
 
 Technologies utilisées :
-- Java 17+
+- Java 21
 - Spring Boot
 - JPA / Hibernate
 - OpenAPI (Swagger)
