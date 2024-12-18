@@ -7,7 +7,7 @@ Technologies utilisées :
 - Spring Boot
 - JPA / Hibernate
 - OpenAPI (Swagger)
-- MySQL
+- MariaDB
 
 Fonctionnalités principales :
 - Gestion des utilisateurs (création, modification, suspension)
