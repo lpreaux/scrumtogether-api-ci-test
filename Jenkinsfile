@@ -25,25 +25,19 @@ pipeline {
             }
         }
         
-        stage('Unit Tests') {
+        stage('Unit Tests & Coverage') {
             steps {
-                sh 'mvn test'
+                sh 'mvn verify'
+                recordCoverage(
+                    tools: [[parser: 'JACOCO']],
+                    id: 'java-coverage',
+                    sourceCodeRetention: 'EVERY_BUILD'
+                )
             }
             post {
                 always {
                     junit '**/target/surefire-reports/*.xml'
                 }
-            }
-        }
-        
-        stage('Code Coverage') {
-            steps {
-                jacoco(
-                    execPattern: '**/target/jacoco.exec',
-                    classPattern: '**/target/classes',
-                    sourcePattern: '**/src/main/java',
-                    exclusionPattern: '**/src/test*'
-                )
             }
         }
         
