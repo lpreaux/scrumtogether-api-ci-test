@@ -8,7 +8,7 @@ pipeline {
     environment {
         SONAR_PROJECT_KEY = 'scrumtogether-project'
         SONAR_SERVER = 'SonarQube'
-        DOCKER_IMAGE = 'scrumtogether-api'
+        APP_NAME = 'scrumtogether-api'
         VERSION = '1.0.0'
         
         // Configuration du déploiement sur la VM
