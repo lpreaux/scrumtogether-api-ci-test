@@ -9,7 +9,8 @@
 
 FROM eclipse-temurin:21-jdk-jammy AS base
 WORKDIR /build
-COPY --chmod=0755 mvnw mvnw
+COPY mvnw mvnw
+RUN chmod +x mvnw
 COPY .mvn/ .mvn/
 
 FROM base AS test
