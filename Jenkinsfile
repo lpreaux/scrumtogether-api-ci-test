@@ -85,11 +85,6 @@ pipeline {
         stage('Deploy to VM') {
             steps {
                 script {
-                    echo "Current branch name: ${env.BRANCH_NAME}"
-                    def gitBranch = sh(returnStdout: true, script: 'git rev-parse --abbrev-ref HEAD').trim()
-                    echo "Current git branch: ${gitBranch}"
-                    
-                    if (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'master' || gitBranch == 'main') {
                         withCredentials([sshUserPrivateKey(credentialsId: "${DEPLOY_CREDS}", keyFileVariable: 'SSH_KEY')]) {
                             // Création du répertoire de déploiement si nécessaire
                             sh """
@@ -134,9 +129,6 @@ pipeline {
                                 '
                             """
                         }
-                    } else {
-                        error "Not on main branch, current branch: ${env.BRANCH_NAME}"
-                    }
                 }
             }
         }
