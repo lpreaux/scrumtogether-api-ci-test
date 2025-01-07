@@ -69,9 +69,6 @@ pipeline {
         }
         
         stage('Package') {
-            when {
-                branch 'main'
-            }
             steps {
                 sh """
                     docker build -t ${DOCKER_IMAGE}:${VERSION} .
@@ -81,9 +78,6 @@ pipeline {
         }
         
         stage('Deploy to Staging') {
-            when {
-                branch 'main'
-            }
             steps {
                 sh """
                     docker stop ${DOCKER_IMAGE}-staging || true
