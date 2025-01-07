@@ -13,7 +13,7 @@ pipeline {
         
         // Configuration du déploiement sur la VM
         DEPLOY_VM_USER = 'deploy'
-        DEPLOY_VM_HOST = '192.168.56.10'  // Remplacer par l'IP de votre VM
+        DEPLOY_VM_HOST = '192.168.64.4'  // Remplacer par l'IP de votre VM
         DEPLOY_PATH = '/opt/applications'
         DEPLOY_CREDS = 'vm-ssh-key'  // ID des credentials dans Jenkins
     }
